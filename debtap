@@ -2970,7 +2970,7 @@ echo -e "\n${lightgreen}==>${NC} ${bold}Checking and generating .INSTALL file (i
 
 SAVEIFS=$IFS
 IFS=$'\n'
-echo "pre_install() {" > tempfile1
+echo "pre_upgrade() {" > tempfile1
 if [[ -e preinst ]]; then
 	sed -i -e '/how this script works/,/debian-policy/d' -e '/how this script works/,/version>/d' -e '/dh_installdeb/,/DEBHELPER/d' preinst
 	if [[ $(grep -c "case in \$1\|case in \${1}\|case in \"\$1\"\|case in \"\${1}\"\|case \$1 in\|case \${1} in\|case \"\$1\" in\|case \"\${1}\" in" preinst) == $(grep -c "case " preinst) ]]; then
@@ -2988,7 +2988,7 @@ if [[ $(echo $(($(grep "[[:blank:]]" -o tempfile1 | wc -l) + 15))) != $(echo $((
 	cat tempfile1 >> tempfile2
 fi
 
-echo -e "\npost_install() {" > tempfile1
+echo -e "\npost_upgrade() {" > tempfile1
 if [[ $(grep '^depend' .PKGINFO | grep -q qt; echo $?) == 0 ]]; then
 	echo -e '\txdg-icon-resource forceupdate --theme hicolor &> /dev/null' >> tempfile1
 elif [[ $(grep '^depend' .PKGINFO | grep -q gtk; echo $?) == 0 ]]; then
@@ -3012,18 +3012,6 @@ fi
 echo "}" >> tempfile1
 if [[ $(echo $(($(grep "[[:blank:]]" -o tempfile1 | wc -l) + 16))) != $(echo $(($(wc -c < tempfile1) - $(wc -l < tempfile1)))) ]]; then
 	cat tempfile1 >> tempfile2
-fi
-
-if [[ $(grep -q '^pre_install() {$' tempfile2 2> /dev/null; echo $?) == 0 ]]; then
-	echo -e "\npre_upgrade() {" >> tempfile2
-	echo -e "\tpre_install" >> tempfile2
-	echo "}" >> tempfile2
-fi
-
-if [[ $(grep -q '^post_install() {$' tempfile2 2> /dev/null; echo $?) == 0 ]]; then
-	echo -e "\npost_upgrade() {" >> tempfile2
-	echo -e "\tpost_install" >> tempfile2
-	echo "}" >> tempfile2
 fi
 
 echo -e "\npre_remove() {" > tempfile1
